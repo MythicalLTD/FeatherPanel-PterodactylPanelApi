@@ -619,6 +619,58 @@ class LocationsController
 	/**
 	 * Update Location - Update an existing location's information
 	 */
+	#[OA\Patch(
+		path: '/api/application/locations/{locationId}',
+		summary: 'Update location',
+		description: 'Update an existing location',
+		tags: ['Plugin - Pterodactyl API - Locations'],
+		parameters: [
+			new OA\Parameter(
+				name: 'locationId',
+				description: 'The ID of the location',
+				in: 'path',
+				required: true,
+				schema: new OA\Schema(type: 'integer')
+			)
+		],
+		requestBody: new OA\RequestBody(
+			required: true,
+			content: new OA\JsonContent(
+				type: 'object',
+				properties: [
+					new OA\Property(property: 'short', type: 'string', description: 'Location short code'),
+					new OA\Property(property: 'long', type: 'string', description: 'Location long name')
+				]
+			)
+		),
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: 'Location updated successfully',
+				content: new OA\JsonContent(
+					type: 'object',
+					properties: [
+						new OA\Property(property: 'object', type: 'string', example: 'location'),
+						new OA\Property(
+							property: 'attributes',
+							type: 'object',
+							properties: [
+								new OA\Property(property: 'id', type: 'integer'),
+								new OA\Property(property: 'short', type: 'string'),
+								new OA\Property(property: 'long', type: 'string'),
+								new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+								new OA\Property(property: 'updated_at', type: 'string', format: 'date-time')
+							]
+						)
+					]
+				)
+			),
+			new OA\Response(response: 400, description: 'Invalid request data'),
+			new OA\Response(response: 404, description: 'Location not found'),
+			new OA\Response(response: 422, description: 'Validation failed'),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function update(Request $request, $locationId): Response
 	{
 		$location = Location::getById($locationId);

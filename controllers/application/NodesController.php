@@ -507,6 +507,91 @@ class NodesController
 	/**
 	 * Get Deployable Nodes - Retrieve nodes available for server deployment
 	 */
+	#[OA\Get(
+		path: '/api/application/nodes/deployable',
+		summary: 'List deployable nodes',
+		description: 'Retrieve a list of nodes that are available for server deployment',
+		tags: ['Plugin - Pterodactyl API - Nodes'],
+		parameters: [
+			new OA\Parameter(
+				name: 'page',
+				description: 'Page number for pagination',
+				in: 'query',
+				required: false,
+				schema: new OA\Schema(type: 'integer', minimum: 1, default: 1)
+			),
+			new OA\Parameter(
+				name: 'per_page',
+				description: 'Number of items per page (max 100)',
+				in: 'query',
+				required: false,
+				schema: new OA\Schema(type: 'integer', minimum: 1, maximum: 100, default: 50)
+			),
+			new OA\Parameter(
+				name: 'include',
+				description: 'Comma-separated list of relationships to include (allocations, location)',
+				in: 'query',
+				required: false,
+				schema: new OA\Schema(type: 'string', enum: ['allocations', 'location'])
+			)
+		],
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: 'List of deployable nodes retrieved successfully',
+				content: new OA\JsonContent(
+					type: 'object',
+					properties: [
+						new OA\Property(property: 'object', type: 'string', example: 'list'),
+						new OA\Property(
+							property: 'data',
+							type: 'array',
+							items: new OA\Items(
+								type: 'object',
+								properties: [
+									new OA\Property(property: 'object', type: 'string', example: 'node'),
+									new OA\Property(
+										property: 'attributes',
+										type: 'object',
+										properties: [
+											new OA\Property(property: 'id', type: 'integer'),
+											new OA\Property(property: 'uuid', type: 'string'),
+											new OA\Property(property: 'public', type: 'boolean'),
+											new OA\Property(property: 'name', type: 'string'),
+											new OA\Property(property: 'description', type: 'string'),
+											new OA\Property(property: 'location_id', type: 'integer'),
+											new OA\Property(property: 'fqdn', type: 'string'),
+											new OA\Property(property: 'scheme', type: 'string'),
+											new OA\Property(property: 'behind_proxy', type: 'boolean'),
+											new OA\Property(property: 'maintenance_mode', type: 'boolean'),
+											new OA\Property(property: 'memory', type: 'integer'),
+											new OA\Property(property: 'memory_overallocate', type: 'integer'),
+											new OA\Property(property: 'disk', type: 'integer'),
+											new OA\Property(property: 'disk_overallocate', type: 'integer'),
+											new OA\Property(property: 'upload_size', type: 'integer'),
+											new OA\Property(property: 'daemon_listen', type: 'integer'),
+											new OA\Property(property: 'daemon_sftp', type: 'integer'),
+											new OA\Property(property: 'daemon_base', type: 'string'),
+											new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+											new OA\Property(property: 'updated_at', type: 'string', format: 'date-time')
+										]
+									)
+								]
+							)
+						),
+						new OA\Property(
+							property: 'meta',
+							type: 'object',
+							properties: [
+								new OA\Property(property: 'pagination', type: 'object')
+							]
+						)
+					]
+				)
+			),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function deployable(Request $request): Response
 	{
 		// Get pagination parameters
@@ -989,6 +1074,87 @@ class NodesController
 	/**
 	 * Update Node Configuration - Update an existing node's configuration
 	 */
+	#[OA\Patch(
+		path: '/api/application/nodes/{nodeId}',
+		summary: 'Update node',
+		description: 'Update an existing node configuration',
+		tags: ['Plugin - Pterodactyl API - Nodes'],
+		parameters: [
+			new OA\Parameter(
+				name: 'nodeId',
+				description: 'The ID of the node',
+				in: 'path',
+				required: true,
+				schema: new OA\Schema(type: 'integer')
+			)
+		],
+		requestBody: new OA\RequestBody(
+			required: true,
+			content: new OA\JsonContent(
+				type: 'object',
+				properties: [
+					new OA\Property(property: 'name', type: 'string', description: 'Node name'),
+					new OA\Property(property: 'description', type: 'string', description: 'Node description'),
+					new OA\Property(property: 'location_id', type: 'integer', description: 'Location ID'),
+					new OA\Property(property: 'fqdn', type: 'string', description: 'Node FQDN'),
+					new OA\Property(property: 'scheme', type: 'string', enum: ['http', 'https'], description: 'Connection scheme'),
+					new OA\Property(property: 'public', type: 'boolean', description: 'Whether the node is public'),
+					new OA\Property(property: 'behind_proxy', type: 'boolean', description: 'Whether the node is behind a proxy'),
+					new OA\Property(property: 'maintenance_mode', type: 'boolean', description: 'Whether the node is in maintenance mode'),
+					new OA\Property(property: 'memory', type: 'integer', description: 'Total memory in MB'),
+					new OA\Property(property: 'memory_overallocate', type: 'integer', description: 'Memory overallocation percentage'),
+					new OA\Property(property: 'disk', type: 'integer', description: 'Total disk space in MB'),
+					new OA\Property(property: 'disk_overallocate', type: 'integer', description: 'Disk overallocation percentage'),
+					new OA\Property(property: 'upload_size', type: 'integer', description: 'Maximum upload size in MB'),
+					new OA\Property(property: 'daemon_listen', type: 'integer', description: 'Daemon listen port'),
+					new OA\Property(property: 'daemon_sftp', type: 'integer', description: 'Daemon SFTP port'),
+					new OA\Property(property: 'daemon_base', type: 'string', description: 'Daemon base directory')
+				]
+			)
+		),
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: 'Node updated successfully',
+				content: new OA\JsonContent(
+					type: 'object',
+					properties: [
+						new OA\Property(property: 'object', type: 'string', example: 'node'),
+						new OA\Property(
+							property: 'attributes',
+							type: 'object',
+							properties: [
+								new OA\Property(property: 'id', type: 'integer'),
+								new OA\Property(property: 'uuid', type: 'string'),
+								new OA\Property(property: 'public', type: 'boolean'),
+								new OA\Property(property: 'name', type: 'string'),
+								new OA\Property(property: 'description', type: 'string'),
+								new OA\Property(property: 'location_id', type: 'integer'),
+								new OA\Property(property: 'fqdn', type: 'string'),
+								new OA\Property(property: 'scheme', type: 'string'),
+								new OA\Property(property: 'behind_proxy', type: 'boolean'),
+								new OA\Property(property: 'maintenance_mode', type: 'boolean'),
+								new OA\Property(property: 'memory', type: 'integer'),
+								new OA\Property(property: 'memory_overallocate', type: 'integer'),
+								new OA\Property(property: 'disk', type: 'integer'),
+								new OA\Property(property: 'disk_overallocate', type: 'integer'),
+								new OA\Property(property: 'upload_size', type: 'integer'),
+								new OA\Property(property: 'daemon_listen', type: 'integer'),
+								new OA\Property(property: 'daemon_sftp', type: 'integer'),
+								new OA\Property(property: 'daemon_base', type: 'string'),
+								new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+								new OA\Property(property: 'updated_at', type: 'string', format: 'date-time')
+							]
+						)
+					]
+				)
+			),
+			new OA\Response(response: 400, description: 'Invalid request data'),
+			new OA\Response(response: 404, description: 'Node not found'),
+			new OA\Response(response: 422, description: 'Validation failed'),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function update(Request $request, $nodeId): Response
 	{
 		// Get the node
@@ -1268,6 +1434,60 @@ class NodesController
 	/**
 	 * Get Node Configuration - Get the Wings daemon configuration for a node
 	 */
+	#[OA\Get(
+		path: '/api/application/nodes/{nodeId}/configuration',
+		summary: 'Get node configuration',
+		description: 'Retrieve the Wings daemon configuration for a specific node',
+		tags: ['Plugin - Pterodactyl API - Nodes'],
+		parameters: [
+			new OA\Parameter(
+				name: 'nodeId',
+				description: 'The ID of the node',
+				in: 'path',
+				required: true,
+				schema: new OA\Schema(type: 'integer')
+			)
+		],
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: 'Node configuration retrieved successfully',
+				content: new OA\JsonContent(
+					type: 'object',
+					properties: [
+						new OA\Property(property: 'object', type: 'string', example: 'node'),
+						new OA\Property(
+							property: 'attributes',
+							type: 'object',
+							properties: [
+								new OA\Property(property: 'id', type: 'integer'),
+								new OA\Property(property: 'uuid', type: 'string'),
+								new OA\Property(property: 'name', type: 'string'),
+								new OA\Property(property: 'description', type: 'string'),
+								new OA\Property(property: 'location_id', type: 'integer'),
+								new OA\Property(property: 'fqdn', type: 'string'),
+								new OA\Property(property: 'scheme', type: 'string'),
+								new OA\Property(property: 'behind_proxy', type: 'boolean'),
+								new OA\Property(property: 'maintenance_mode', type: 'boolean'),
+								new OA\Property(property: 'memory', type: 'integer'),
+								new OA\Property(property: 'memory_overallocate', type: 'integer'),
+								new OA\Property(property: 'disk', type: 'integer'),
+								new OA\Property(property: 'disk_overallocate', type: 'integer'),
+								new OA\Property(property: 'upload_size', type: 'integer'),
+								new OA\Property(property: 'daemon_listen', type: 'integer'),
+								new OA\Property(property: 'daemon_sftp', type: 'integer'),
+								new OA\Property(property: 'daemon_base', type: 'string'),
+								new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+								new OA\Property(property: 'updated_at', type: 'string', format: 'date-time')
+							]
+						)
+					]
+				)
+			),
+			new OA\Response(response: 404, description: 'Node not found'),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function configuration(Request $request, $nodeId): Response
 	{
 		// Get the node
@@ -1341,6 +1561,80 @@ class NodesController
 	/**
 	 * List Node Allocations - Get all allocations for a specific node
 	 */
+	#[OA\Get(
+		path: '/api/application/nodes/{nodeId}/allocations',
+		summary: 'List node allocations',
+		description: 'Retrieve all IP allocations for a specific node',
+		tags: ['Plugin - Pterodactyl API - Nodes'],
+		parameters: [
+			new OA\Parameter(
+				name: 'nodeId',
+				description: 'The ID of the node',
+				in: 'path',
+				required: true,
+				schema: new OA\Schema(type: 'integer')
+			),
+			new OA\Parameter(
+				name: 'page',
+				description: 'Page number for pagination',
+				in: 'query',
+				required: false,
+				schema: new OA\Schema(type: 'integer', minimum: 1, default: 1)
+			),
+			new OA\Parameter(
+				name: 'per_page',
+				description: 'Number of items per page (max 100)',
+				in: 'query',
+				required: false,
+				schema: new OA\Schema(type: 'integer', minimum: 1, maximum: 100, default: 50)
+			)
+		],
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: 'Node allocations retrieved successfully',
+				content: new OA\JsonContent(
+					type: 'object',
+					properties: [
+						new OA\Property(property: 'object', type: 'string', example: 'list'),
+						new OA\Property(
+							property: 'data',
+							type: 'array',
+							items: new OA\Items(
+								type: 'object',
+								properties: [
+									new OA\Property(property: 'object', type: 'string', example: 'allocation'),
+									new OA\Property(
+										property: 'attributes',
+										type: 'object',
+										properties: [
+											new OA\Property(property: 'id', type: 'integer'),
+											new OA\Property(property: 'ip', type: 'string'),
+											new OA\Property(property: 'port', type: 'integer'),
+											new OA\Property(property: 'alias', type: 'string'),
+											new OA\Property(property: 'port_alias', type: 'string'),
+											new OA\Property(property: 'assigned', type: 'boolean'),
+											new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+											new OA\Property(property: 'updated_at', type: 'string', format: 'date-time')
+										]
+									)
+								]
+							)
+						),
+						new OA\Property(
+							property: 'meta',
+							type: 'object',
+							properties: [
+								new OA\Property(property: 'pagination', type: 'object')
+							]
+						)
+					]
+				)
+			),
+			new OA\Response(response: 404, description: 'Node not found'),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function allocations(Request $request, $nodeId): Response
 	{
 		// Get the node
@@ -1431,6 +1725,74 @@ class NodesController
 	/**
 	 * Create Node Allocations - Create new allocations for a node
 	 */
+	#[OA\Post(
+		path: '/api/application/nodes/{nodeId}/allocations',
+		summary: 'Create node allocations',
+		description: 'Create new IP allocations for a specific node',
+		tags: ['Plugin - Pterodactyl API - Nodes'],
+		parameters: [
+			new OA\Parameter(
+				name: 'nodeId',
+				description: 'The ID of the node',
+				in: 'path',
+				required: true,
+				schema: new OA\Schema(type: 'integer')
+			)
+		],
+		requestBody: new OA\RequestBody(
+			required: true,
+			content: new OA\JsonContent(
+				type: 'object',
+				required: ['ip', 'ports'],
+				properties: [
+					new OA\Property(property: 'ip', type: 'string', description: 'IP address'),
+					new OA\Property(property: 'ports', type: 'array', items: new OA\Items(type: 'string'), description: 'Array of ports to allocate'),
+					new OA\Property(property: 'alias', type: 'string', description: 'IP alias'),
+					new OA\Property(property: 'port_alias', type: 'string', description: 'Port alias')
+				]
+			)
+		),
+		responses: [
+			new OA\Response(
+				response: 201,
+				description: 'Allocations created successfully',
+				content: new OA\JsonContent(
+					type: 'object',
+					properties: [
+						new OA\Property(property: 'object', type: 'string', example: 'list'),
+						new OA\Property(
+							property: 'data',
+							type: 'array',
+							items: new OA\Items(
+								type: 'object',
+								properties: [
+									new OA\Property(property: 'object', type: 'string', example: 'allocation'),
+									new OA\Property(
+										property: 'attributes',
+										type: 'object',
+										properties: [
+											new OA\Property(property: 'id', type: 'integer'),
+											new OA\Property(property: 'ip', type: 'string'),
+											new OA\Property(property: 'port', type: 'integer'),
+											new OA\Property(property: 'alias', type: 'string'),
+											new OA\Property(property: 'port_alias', type: 'string'),
+											new OA\Property(property: 'assigned', type: 'boolean'),
+											new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+											new OA\Property(property: 'updated_at', type: 'string', format: 'date-time')
+										]
+									)
+								]
+							)
+						)
+					]
+				)
+			),
+			new OA\Response(response: 400, description: 'Invalid request data'),
+			new OA\Response(response: 404, description: 'Node not found'),
+			new OA\Response(response: 422, description: 'Validation failed'),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function createAllocations(Request $request, $nodeId): Response
 	{
 		// Get the node
@@ -1664,6 +2026,34 @@ class NodesController
 	/**
 	 * Delete Node Allocation - Delete a specific allocation from a node
 	 */
+	#[OA\Delete(
+		path: '/api/application/nodes/{nodeId}/allocations/{allocationId}',
+		summary: 'Delete node allocation',
+		description: 'Delete a specific IP allocation from a node',
+		tags: ['Plugin - Pterodactyl API - Nodes'],
+		parameters: [
+			new OA\Parameter(
+				name: 'nodeId',
+				description: 'The ID of the node',
+				in: 'path',
+				required: true,
+				schema: new OA\Schema(type: 'integer')
+			),
+			new OA\Parameter(
+				name: 'allocationId',
+				description: 'The ID of the allocation',
+				in: 'path',
+				required: true,
+				schema: new OA\Schema(type: 'integer')
+			)
+		],
+		responses: [
+			new OA\Response(response: 204, description: 'Allocation deleted successfully'),
+			new OA\Response(response: 404, description: 'Node or allocation not found'),
+			new OA\Response(response: 400, description: 'Cannot delete assigned allocation'),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function deleteAllocation(Request $request, $nodeId, $allocationId): Response
 	{
 		// Get the node

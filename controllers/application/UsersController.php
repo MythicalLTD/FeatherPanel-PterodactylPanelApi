@@ -662,6 +662,61 @@ class UsersController
 		return ApiResponse::sendManualResponse($responseData, 200);
 	}
 
+	#[OA\Get(
+		path: '/api/application/users/external/{externalId}',
+		summary: 'Get user by external ID',
+		description: 'Retrieve user details using external ID',
+		tags: ['Plugin - Pterodactyl API - Users'],
+		parameters: [
+			new OA\Parameter(
+				name: 'externalId',
+				description: 'The external ID of the user',
+				in: 'path',
+				required: true,
+				schema: new OA\Schema(type: 'string')
+			),
+			new OA\Parameter(
+				name: 'include',
+				description: 'Comma-separated list of relationships to include (servers)',
+				in: 'query',
+				required: false,
+				schema: new OA\Schema(type: 'string', enum: ['servers'])
+			)
+		],
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: 'User details retrieved successfully',
+				content: new OA\JsonContent(
+					type: 'object',
+					properties: [
+						new OA\Property(property: 'object', type: 'string', example: 'user'),
+						new OA\Property(
+							property: 'attributes',
+							type: 'object',
+							properties: [
+								new OA\Property(property: 'id', type: 'integer'),
+								new OA\Property(property: 'external_id', type: 'string'),
+								new OA\Property(property: 'uuid', type: 'string'),
+								new OA\Property(property: 'username', type: 'string'),
+								new OA\Property(property: 'email', type: 'string'),
+								new OA\Property(property: 'first_name', type: 'string'),
+								new OA\Property(property: 'last_name', type: 'string'),
+								new OA\Property(property: 'language', type: 'string'),
+								new OA\Property(property: 'admin', type: 'boolean'),
+								new OA\Property(property: 'root_admin', type: 'boolean'),
+								new OA\Property(property: '2fa', type: 'boolean'),
+								new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+								new OA\Property(property: 'updated_at', type: 'string', format: 'date-time')
+							]
+						)
+					]
+				)
+			),
+			new OA\Response(response: 404, description: 'User not found'),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function showExternal(Request $request, string $externalId): Response
 	{
 		// Parse include parameter
@@ -1151,6 +1206,73 @@ class UsersController
 		return ApiResponse::sendManualResponse($responseData, 201);
 	}
 
+	#[OA\Patch(
+		path: '/api/application/users/{userId}',
+		summary: 'Update user',
+		description: 'Update an existing user',
+		tags: ['Plugin - Pterodactyl API - Users'],
+		parameters: [
+			new OA\Parameter(
+				name: 'userId',
+				description: 'The ID of the user',
+				in: 'path',
+				required: true,
+				schema: new OA\Schema(type: 'integer')
+			)
+		],
+		requestBody: new OA\RequestBody(
+			required: true,
+			content: new OA\JsonContent(
+				type: 'object',
+				properties: [
+					new OA\Property(property: 'username', type: 'string', description: 'Username'),
+					new OA\Property(property: 'email', type: 'string', format: 'email', description: 'User email'),
+					new OA\Property(property: 'first_name', type: 'string', description: 'First name'),
+					new OA\Property(property: 'last_name', type: 'string', description: 'Last name'),
+					new OA\Property(property: 'password', type: 'string', description: 'User password'),
+					new OA\Property(property: 'language', type: 'string', description: 'User language'),
+					new OA\Property(property: 'admin', type: 'boolean', description: 'Whether user is admin'),
+					new OA\Property(property: 'root_admin', type: 'boolean', description: 'Whether user is root admin'),
+					new OA\Property(property: 'external_id', type: 'string', description: 'External ID for integration')
+				]
+			)
+		),
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: 'User updated successfully',
+				content: new OA\JsonContent(
+					type: 'object',
+					properties: [
+						new OA\Property(property: 'object', type: 'string', example: 'user'),
+						new OA\Property(
+							property: 'attributes',
+							type: 'object',
+							properties: [
+								new OA\Property(property: 'id', type: 'integer'),
+								new OA\Property(property: 'external_id', type: 'string'),
+								new OA\Property(property: 'uuid', type: 'string'),
+								new OA\Property(property: 'username', type: 'string'),
+								new OA\Property(property: 'email', type: 'string'),
+								new OA\Property(property: 'first_name', type: 'string'),
+								new OA\Property(property: 'last_name', type: 'string'),
+								new OA\Property(property: 'language', type: 'string'),
+								new OA\Property(property: 'admin', type: 'boolean'),
+								new OA\Property(property: 'root_admin', type: 'boolean'),
+								new OA\Property(property: '2fa', type: 'boolean'),
+								new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+								new OA\Property(property: 'updated_at', type: 'string', format: 'date-time')
+							]
+						)
+					]
+				)
+			),
+			new OA\Response(response: 400, description: 'Invalid request data'),
+			new OA\Response(response: 404, description: 'User not found'),
+			new OA\Response(response: 422, description: 'Validation failed'),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function update(Request $request, int $userId): Response
 	{
 		// Get request data
@@ -1346,6 +1468,27 @@ class UsersController
 		return ApiResponse::sendManualResponse($responseData, 200);
 	}
 
+	#[OA\Delete(
+		path: '/api/application/users/{userId}',
+		summary: 'Delete user',
+		description: 'Delete a user from the panel',
+		tags: ['Plugin - Pterodactyl API - Users'],
+		parameters: [
+			new OA\Parameter(
+				name: 'userId',
+				description: 'The ID of the user',
+				in: 'path',
+				required: true,
+				schema: new OA\Schema(type: 'integer')
+			)
+		],
+		responses: [
+			new OA\Response(response: 204, description: 'User deleted successfully'),
+			new OA\Response(response: 404, description: 'User not found'),
+			new OA\Response(response: 400, description: 'Cannot delete user with servers'),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function destroy(Request $request, int $userId): Response
 	{
 		// Check if user exists

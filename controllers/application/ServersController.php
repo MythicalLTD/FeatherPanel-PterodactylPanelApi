@@ -928,6 +928,65 @@ class ServersController
 	/**
 	 * Get Server by External ID - Retrieve server details using an external ID
 	 */
+	#[OA\Get(
+		path: '/api/application/servers/external/{externalId}',
+		summary: 'Get server by external ID',
+		description: 'Retrieve server details using external ID',
+		tags: ['Plugin - Pterodactyl API - Servers'],
+		parameters: [
+			new OA\Parameter(
+				name: 'externalId',
+				description: 'The external ID of the server',
+				in: 'path',
+				required: true,
+				schema: new OA\Schema(type: 'string')
+			),
+			new OA\Parameter(
+				name: 'include',
+				description: 'Comma-separated list of relationships to include (user, subusers, allocations, nest, egg, variables)',
+				in: 'query',
+				required: false,
+				schema: new OA\Schema(type: 'string', enum: ['user', 'subusers', 'allocations', 'nest', 'egg', 'variables'])
+			)
+		],
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: 'Server details retrieved successfully',
+				content: new OA\JsonContent(
+					type: 'object',
+					properties: [
+						new OA\Property(property: 'object', type: 'string', example: 'server'),
+						new OA\Property(
+							property: 'attributes',
+							type: 'object',
+							properties: [
+								new OA\Property(property: 'id', type: 'integer'),
+								new OA\Property(property: 'external_id', type: 'string'),
+								new OA\Property(property: 'uuid', type: 'string'),
+								new OA\Property(property: 'identifier', type: 'string'),
+								new OA\Property(property: 'name', type: 'string'),
+								new OA\Property(property: 'description', type: 'string'),
+								new OA\Property(property: 'suspended', type: 'boolean'),
+								new OA\Property(property: 'limits', type: 'object'),
+								new OA\Property(property: 'feature_limits', type: 'object'),
+								new OA\Property(property: 'user', type: 'integer'),
+								new OA\Property(property: 'node', type: 'integer'),
+								new OA\Property(property: 'allocation', type: 'integer'),
+								new OA\Property(property: 'nest', type: 'integer'),
+								new OA\Property(property: 'egg', type: 'integer'),
+								new OA\Property(property: 'container', type: 'object'),
+								new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+								new OA\Property(property: 'updated_at', type: 'string', format: 'date-time')
+							]
+						)
+					]
+				)
+			),
+			new OA\Response(response: 404, description: 'Server not found'),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function showExternal(Request $request, $externalId)
 	{
 		$include = $request->get('include', '');
@@ -1086,6 +1145,71 @@ class ServersController
 	/**
 	 * Create New Server - Create a new server in the panel
 	 */
+	#[OA\Post(
+		path: '/api/application/servers',
+		summary: 'Create a new server',
+		description: 'Create a new server with the specified configuration',
+		tags: ['Plugin - Pterodactyl API - Servers'],
+		requestBody: new OA\RequestBody(
+			required: true,
+			content: new OA\JsonContent(
+				type: 'object',
+				required: ['name', 'user', 'nest', 'egg', 'docker_image', 'startup', 'environment', 'limits', 'feature_limits', 'allocation'],
+				properties: [
+					new OA\Property(property: 'name', type: 'string', description: 'Server name'),
+					new OA\Property(property: 'description', type: 'string', description: 'Server description'),
+					new OA\Property(property: 'user', type: 'integer', description: 'User ID'),
+					new OA\Property(property: 'nest', type: 'integer', description: 'Nest ID'),
+					new OA\Property(property: 'egg', type: 'integer', description: 'Egg ID'),
+					new OA\Property(property: 'docker_image', type: 'string', description: 'Docker image'),
+					new OA\Property(property: 'startup', type: 'string', description: 'Startup command'),
+					new OA\Property(property: 'environment', type: 'object', description: 'Environment variables'),
+					new OA\Property(property: 'limits', type: 'object', description: 'Resource limits'),
+					new OA\Property(property: 'feature_limits', type: 'object', description: 'Feature limits'),
+					new OA\Property(property: 'allocation', type: 'object', description: 'Allocation settings'),
+					new OA\Property(property: 'external_id', type: 'string', description: 'External ID for integration')
+				]
+			)
+		),
+		responses: [
+			new OA\Response(
+				response: 201,
+				description: 'Server created successfully',
+				content: new OA\JsonContent(
+					type: 'object',
+					properties: [
+						new OA\Property(property: 'object', type: 'string', example: 'server'),
+						new OA\Property(
+							property: 'attributes',
+							type: 'object',
+							properties: [
+								new OA\Property(property: 'id', type: 'integer'),
+								new OA\Property(property: 'external_id', type: 'string'),
+								new OA\Property(property: 'uuid', type: 'string'),
+								new OA\Property(property: 'identifier', type: 'string'),
+								new OA\Property(property: 'name', type: 'string'),
+								new OA\Property(property: 'description', type: 'string'),
+								new OA\Property(property: 'suspended', type: 'boolean'),
+								new OA\Property(property: 'limits', type: 'object'),
+								new OA\Property(property: 'feature_limits', type: 'object'),
+								new OA\Property(property: 'user', type: 'integer'),
+								new OA\Property(property: 'node', type: 'integer'),
+								new OA\Property(property: 'allocation', type: 'integer'),
+								new OA\Property(property: 'nest', type: 'integer'),
+								new OA\Property(property: 'egg', type: 'integer'),
+								new OA\Property(property: 'container', type: 'object'),
+								new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+								new OA\Property(property: 'updated_at', type: 'string', format: 'date-time')
+							]
+						)
+					]
+				)
+			),
+			new OA\Response(response: 400, description: 'Invalid request data'),
+			new OA\Response(response: 422, description: 'Validation failed'),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function store(Request $request)
 	{
 		$data = json_decode($request->getContent(), true);
@@ -1608,6 +1732,26 @@ class ServersController
 	/**
 	 * Suspend Server - Suspend a server to prevent it from starting
 	 */
+	#[OA\Post(
+		path: '/api/application/servers/{serverId}/suspend',
+		summary: 'Suspend server',
+		description: 'Suspend a server',
+		tags: ['Plugin - Pterodactyl API - Servers'],
+		parameters: [
+			new OA\Parameter(
+				name: 'serverId',
+				description: 'The UUID or ID of the server',
+				in: 'path',
+				required: true,
+				schema: new OA\Schema(type: 'string')
+			)
+		],
+		responses: [
+			new OA\Response(response: 204, description: 'Server suspended successfully'),
+			new OA\Response(response: 404, description: 'Server not found'),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function suspend(Request $request, $serverId)
 	{
 		$server = Server::getServerById($serverId);
@@ -1698,6 +1842,26 @@ class ServersController
 	/**
 	 * Unsuspend Server - Remove suspension from a server to allow it to start
 	 */
+	#[OA\Post(
+		path: '/api/application/servers/{serverId}/unsuspend',
+		summary: 'Unsuspend server',
+		description: 'Unsuspend a server',
+		tags: ['Plugin - Pterodactyl API - Servers'],
+		parameters: [
+			new OA\Parameter(
+				name: 'serverId',
+				description: 'The UUID or ID of the server',
+				in: 'path',
+				required: true,
+				schema: new OA\Schema(type: 'string')
+			)
+		],
+		responses: [
+			new OA\Response(response: 204, description: 'Server unsuspended successfully'),
+			new OA\Response(response: 404, description: 'Server not found'),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function unsuspend(Request $request, $serverId)
 	{
 		$server = Server::getServerById($serverId);
@@ -1819,6 +1983,26 @@ class ServersController
 	/**
 	 * Delete Server - Delete a server from the panel
 	 */
+	#[OA\Delete(
+		path: '/api/application/servers/{serverId}',
+		summary: 'Delete server',
+		description: 'Delete a server from the panel',
+		tags: ['Plugin - Pterodactyl API - Servers'],
+		parameters: [
+			new OA\Parameter(
+				name: 'serverId',
+				description: 'The UUID or ID of the server',
+				in: 'path',
+				required: true,
+				schema: new OA\Schema(type: 'string')
+			)
+		],
+		responses: [
+			new OA\Response(response: 204, description: 'Server deleted successfully'),
+			new OA\Response(response: 404, description: 'Server not found'),
+			new OA\Response(response: 500, description: 'Internal server error')
+		]
+	)]
 	public function destroy(Request $request, $serverId)
 	{
 		$server = Server::getServerById($serverId);
