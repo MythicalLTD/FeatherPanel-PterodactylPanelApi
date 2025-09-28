@@ -239,7 +239,7 @@ class NestsController
 			}
 
 			if (!empty($relationships)) {
-				$nestData['relationships'] = $relationships;
+				$nestData['attributes']['relationships'] = $relationships;
 			}
 
 			$data[] = $nestData;
@@ -463,7 +463,7 @@ class NestsController
 		}
 
 		if (!empty($relationships)) {
-			$nestData['relationships'] = $relationships;
+			$nestData['attributes']['relationships'] = $relationships;
 		}
 
 		return ApiResponse::sendManualResponse($nestData, 200);
@@ -662,7 +662,7 @@ class NestsController
 			}
 
 			if (!empty($relationships)) {
-				$eggData['relationships'] = $relationships;
+				$eggData['attributes']['relationships'] = $relationships;
 			}
 
 			$data[] = $eggData;

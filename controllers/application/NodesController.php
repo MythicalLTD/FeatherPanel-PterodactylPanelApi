@@ -286,7 +286,7 @@ class NodesController
 					];
 				}
 
-				$nodeData['relationships'] = $relationships;
+				$nodeData['attributes']['relationships'] = $relationships;
 			}
 
 			$data[] = $nodeData;
@@ -498,7 +498,7 @@ class NodesController
 				];
 			}
 
-			$nodeData['relationships'] = $relationships;
+			$nodeData['attributes']['relationships'] = $relationships;
 		}
 
 		return ApiResponse::sendManualResponse($nodeData, 200);
@@ -2312,7 +2312,7 @@ class NodesController
 				];
 			}
 
-			$nodeData['relationships'] = $relationships;
+			$nodeData['attributes']['relationships'] = $relationships;
 		}
 
 		return $nodeData;

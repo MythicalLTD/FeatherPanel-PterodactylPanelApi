@@ -203,7 +203,7 @@ class DatabasesController
 			}
 
 			if (!empty($relationships)) {
-				$databaseData['relationships'] = $relationships;
+				$databaseData['attributes']['relationships'] = $relationships;
 			}
 
 			$data[] = $databaseData;
@@ -401,7 +401,7 @@ class DatabasesController
 		}
 
 		if (!empty($relationships)) {
-			$databaseData['relationships'] = $relationships;
+			$databaseData['attributes']['relationships'] = $relationships;
 		}
 
 		return ApiResponse::sendManualResponse($databaseData, 200);

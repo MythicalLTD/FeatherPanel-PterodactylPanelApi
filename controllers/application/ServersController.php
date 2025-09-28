@@ -918,8 +918,10 @@ class ServersController
 
 		// Add relationships if include parameter is specified
 		if ($includeServers) {
-			$relationships = [];
-			$processedServer['relationships'] = $this->buildServerRelationships($server, $include, $pdo);
+			$relationships = $this->buildServerRelationships($server, $include, $pdo);
+			if (!empty($relationships)) {
+				$processedServer['attributes']['relationships'] = $relationships;
+			}
 		}
 
 		return ApiResponse::sendManualResponse($processedServer, 200);
@@ -1135,8 +1137,10 @@ class ServersController
 
 		// Add relationships if include parameter is specified
 		if ($includeServers) {
-			$relationships = [];
-			$processedServer['relationships'] = $this->buildServerRelationships($server, $include, $pdo);
+			$relationships = $this->buildServerRelationships($server, $include, $pdo);
+			if (!empty($relationships)) {
+				$processedServer['attributes']['relationships'] = $relationships;
+			}
 		}
 
 		return ApiResponse::sendManualResponse($processedServer, 200);
@@ -3205,7 +3209,7 @@ class ServersController
 		];
 
 		if (!empty($relationships)) {
-			$response['relationships'] = $relationships;
+			$response['attributes']['relationships'] = $relationships;
 		}
 
 		return ApiResponse::sendManualResponse($response, 200);

@@ -245,7 +245,7 @@ class LocationsController
 					];
 				}
 
-				$locationData['relationships'] = $relationships;
+				$locationData['attributes']['relationships'] = $relationships;
 			}
 
 			$data[] = $locationData;
@@ -436,7 +436,7 @@ class LocationsController
 				];
 			}
 
-			$locationData['relationships'] = $relationships;
+			$locationData['attributes']['relationships'] = $relationships;
 		}
 
 		return ApiResponse::sendManualResponse($locationData, 200);
