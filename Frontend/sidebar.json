@@ -2,8 +2,9 @@
 	"dashboard": {},
 	"admin": {
 		"/admin/pterodactylpanelapi/api-keys": {
-			"name": "API Keys V2",
-			"icon": "\u1F511",
+			"name": "Pterodactyl API",
+			"icon": "🦎",
+			"showBadge": false,
 			"redirect": "/admin/pterodactylpanelapi/api-keys",
 			"component": "api-keys.html",
 			"description": "Manage and generate API keys for the PterodactylPanelApi plugin",
