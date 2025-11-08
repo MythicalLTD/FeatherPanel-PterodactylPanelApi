@@ -36,6 +36,7 @@ use App\Mail\templates\ServerUnbanned;
 use App\Mail\templates\ServerDeleted;
 use App\Addons\pterodactylpanelapi\utils\DateTimePtero;
 use App\Addons\pterodactylpanelapi\middleware\PterodactylKeyAuth;
+use App\Services\Subdomain\SubdomainCleanupService;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -2169,6 +2170,8 @@ class ServersController
 			);
 
 			$response = $wings->getServer()->deleteServer($server['uuid']);
+			(new SubdomainCleanupService())->cleanupServerSubdomains((int) $server['id']);
+
 			if (!$response->isSuccessful()) {
 				App::getInstance(true)->getLogger()->error('Failed to delete server in Wings: ' . $response->getError());
 			}
