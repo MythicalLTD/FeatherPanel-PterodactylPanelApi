@@ -27,6 +27,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		[], // requirements
 		[], // options
@@ -45,6 +46,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		[], // requirements
 		[], // options
@@ -63,6 +65,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['server' => '\d+'], // requirements - server must be numeric
 		[], // options
@@ -81,6 +84,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['external_id' => '[^/]+'], // requirements - external_id can be any string except /
 		[], // options
@@ -99,6 +103,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['server' => '\d+'], // requirements - server must be numeric
 		[], // options
@@ -117,6 +122,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['server' => '\d+'], // requirements - server must be numeric
 		[], // options
@@ -135,6 +141,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['server' => '\d+'], // requirements - server must be numeric
 		[], // options
@@ -153,6 +160,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['server' => '\d+'], // requirements - server must be numeric
 		[], // options
@@ -171,6 +179,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['server' => '\d+'], // requirements - server must be numeric
 		[], // options
@@ -189,6 +198,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['server' => '\d+'], // requirements - server must be numeric
 		[], // options
@@ -207,6 +217,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['server' => '\d+'], // requirements - server must be numeric
 		[], // options

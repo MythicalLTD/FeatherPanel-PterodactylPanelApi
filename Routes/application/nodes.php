@@ -27,6 +27,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		[], // requirements
 		[], // options
@@ -45,6 +46,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['nodeId' => '\d+'], // requirements
 		[], // options
@@ -63,6 +65,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		[], // requirements
 		[], // options
@@ -81,6 +84,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		[], // requirements
 		[], // options
@@ -99,6 +103,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['nodeId' => '\d+'], // requirements
 		[], // options
@@ -117,6 +122,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['nodeId' => '\d+'], // requirements
 		[], // options
@@ -135,6 +141,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['nodeId' => '\d+'], // requirements
 		[], // options
@@ -153,6 +160,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['nodeId' => '\d+'], // requirements
 		[], // options
@@ -171,6 +179,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['nodeId' => '\d+', 'allocationId' => '\d+'], // requirements
 		[], // options
@@ -189,6 +198,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['nodeId' => '\d+'], // requirements
 		[], // options

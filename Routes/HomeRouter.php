@@ -29,6 +29,7 @@ return function (RouteCollection $routes): void {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 			'_permission' => Permissions::ADMIN_PLUGINS_MANAGE,
 		],
 		[], // requirements

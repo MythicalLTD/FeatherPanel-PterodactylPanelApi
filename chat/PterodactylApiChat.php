@@ -14,34 +14,65 @@ class PterodactylApiChat
 	private static string $table = "`featherpanel_pterodactylpanelapi_pterodactyl_api_key`";
 
 	/**
+	 * Validate the provided API key type.
+	 */
+	private static function normalizeType(?string $type): ?string
+	{
+		if ($type === null) {
+			return null;
+		}
+
+		$type = strtolower($type);
+		return in_array($type, ['admin', 'client'], true) ? $type : null;
+	}
+
+	/**
 	 * Get all API keys.
 	 *
 	 * @param string|null $search The search query.
 	 * @param int $limit The limit.
 	 * @param int $offset The offset.
+	 * @param string|null $type The API key type filter.
+	 * @param int|null $createdBy Optional creator filter (used for client keys).
 	 *
 	 * @return array The API keys.
 	 */
-	public static function getAll(?string $search = null, int $limit = 10, int $offset = 0): array
+	public static function getAll(?string $search = null, int $limit = 10, int $offset = 0, ?string $type = null, ?int $createdBy = null): array
 	{
 		$pdo = Database::getPdoConnection();
 		$sql = 'SELECT * FROM ' . self::$table;
 		$params = [];
+		$conditions = ['`deleted` = \'false\''];
 
 		if ($search !== null) {
-			$sql .= ' WHERE name LIKE :search';
+			$conditions[] = '`name` LIKE :search';
 			$params['search'] = '%' . $search . '%';
+		}
+
+		$normalizedType = self::normalizeType($type);
+		if ($normalizedType !== null) {
+			$conditions[] = '`type` = :type';
+			$params['type'] = $normalizedType;
+		}
+
+		if ($createdBy !== null) {
+			$conditions[] = '`created_by` = :created_by';
+			$params['created_by'] = $createdBy;
+		}
+
+		if (!empty($conditions)) {
+			$sql .= ' WHERE ' . implode(' AND ', $conditions);
 		}
 
 		$sql .= ' LIMIT :limit OFFSET :offset';
 		$stmt = $pdo->prepare($sql);
 		if (!empty($params)) {
 			foreach ($params as $key => $value) {
-				$stmt->bindValue($key, $value);
+				$stmt->bindValue(is_string($key) ? ':' . ltrim($key, ':') : $key, $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
 			}
 		}
-		$stmt->bindValue('limit', $limit, \PDO::PARAM_INT);
-		$stmt->bindValue('offset', $offset, \PDO::PARAM_INT);
+		$stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+		$stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
 		$stmt->execute();
 
 		return $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -83,23 +114,44 @@ class PterodactylApiChat
 	 * Get the count of API keys.
 	 *
 	 * @param string|null $search The search query.
+	 * @param string|null $type The API key type filter.
+	 * @param int|null $createdBy Optional creator filter (used for client keys).
 	 *
 	 * @return int The count.
 	 */
-	public static function getCount(?string $search = null): int
+	public static function getCount(?string $search = null, ?string $type = null, ?int $createdBy = null): int
 	{
 		$pdo = Database::getPdoConnection();
 		$sql = 'SELECT COUNT(*) FROM ' . self::$table;
 		$params = [];
+		$conditions = ['`deleted` = \'false\''];
 
 		if ($search !== null) {
-			$sql .= ' WHERE name LIKE :search';
+			$conditions[] = '`name` LIKE :search';
 			$params['search'] = '%' . $search . '%';
+		}
+
+		$normalizedType = self::normalizeType($type);
+		if ($normalizedType !== null) {
+			$conditions[] = '`type` = :type';
+			$params['type'] = $normalizedType;
+		}
+
+		if ($createdBy !== null) {
+			$conditions[] = '`created_by` = :created_by';
+			$params['created_by'] = $createdBy;
+		}
+
+		if (!empty($conditions)) {
+			$sql .= ' WHERE ' . implode(' AND ', $conditions);
 		}
 
 		$stmt = $pdo->prepare($sql);
 		if (!empty($params)) {
-			$stmt->execute($params);
+			foreach ($params as $key => $value) {
+				$stmt->bindValue(is_string($key) ? ':' . ltrim($key, ':') : $key, $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+			}
+			$stmt->execute();
 		} else {
 			$stmt->execute();
 		}
@@ -116,13 +168,16 @@ class PterodactylApiChat
 	 */
 	public static function create(array $data): int|false
 	{
-		$fields = ['name', 'key', 'last_used', 'created_by'];
+		$fields = ['name', 'key', 'type', 'last_used', 'created_by'];
 		$insert = [];
 		foreach ($fields as $field) {
 			$insert[$field] = $data[$field] ?? null;
 		}
+
+		$insert['type'] = self::normalizeType($insert['type']) ?? 'admin';
+
 		$pdo = Database::getPdoConnection();
-		$sql = 'INSERT INTO ' . self::$table . ' (name, `key`, last_used, created_by) VALUES (:name, :key, :last_used, :created_by)';
+		$sql = 'INSERT INTO ' . self::$table . ' (name, `key`, `type`, last_used, created_by) VALUES (:name, :key, :type, :last_used, :created_by)';
 		$stmt = $pdo->prepare($sql);
 		if ($stmt->execute($insert)) {
 			return (int) $pdo->lastInsertId();

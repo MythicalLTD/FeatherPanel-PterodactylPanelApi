@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pterodactyl API Keys</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Pterodactyl Admin API Keys</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   </head>
   <body class="text-gray-100 font-sans min-h-screen">
     <!-- Windows-style window container -->
@@ -22,7 +22,7 @@
             <div class="w-3 h-3 bg-green-500 rounded-full"></div>
           </div>
           <h1 class="text-sm font-medium text-gray-200">
-            Pterodactyl API Keys
+            Pterodactyl Admin API Keys
           </h1>
         </div>
         <div class="flex items-center gap-2">
@@ -47,11 +47,18 @@
       <div class="p-6">
         <!-- Page Header -->
         <div class="mb-8">
-          <h2 class="text-2xl font-light mb-2 text-gray-100">
-            API Keys Management
-          </h2>
+          <div class="flex items-center gap-3 mb-2">
+            <h2 class="text-2xl font-light text-gray-100">Admin API Keys</h2>
+            <span
+              id="context-pill"
+              class="text-xs font-semibold uppercase tracking-wide px-3 py-1 rounded-full bg-purple-900/40 border border-purple-600 text-purple-200"
+            >
+              Admin scope: Global
+            </span>
+          </div>
           <p class="text-sm text-gray-400">
-            Manage your Pterodactyl Panel API keys for secure application access
+            Manage your Pterodactyl Panel application API keys for
+            administrative access
           </p>
         </div>
 
@@ -60,7 +67,7 @@
           class="flex gap-4 p-4 mb-8 bg-blue-900/30 border-l-4 border-blue-500 rounded-r-lg"
         >
           <div
-            class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1"
+            class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shrink-0 mt-1"
           >
             <svg
               class="w-4 h-4 text-white"
@@ -76,27 +83,28 @@
           </div>
           <div class="flex-1">
             <h3 class="font-medium mb-3 text-gray-100 text-base">
-              Important Information About API Keys
+              Important Information About Admin API Keys
             </h3>
             <ul class="text-sm space-y-2 text-gray-300">
               <li class="flex items-start">
                 <span
-                  class="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"
+                  class="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-3 shrink-0"
                 ></span>
-                API keys are persistent and remain valid until manually deleted
+                Admin API keys are persistent and remain valid until manually
+                deleted
               </li>
               <li class="flex items-start">
                 <span
-                  class="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"
+                  class="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-3 shrink-0"
                 ></span>
-                API keys provide the same access as your account session
+                Admin API keys grant application-level access across the panel
               </li>
               <li class="flex items-start">
                 <span
-                  class="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"
+                  class="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 mr-3 shrink-0"
                 ></span>
-                Keep your private key secure - it can be used to authenticate
-                requests
+                Keep your private key secure — it can be used to authenticate
+                privileged requests
               </li>
             </ul>
           </div>
@@ -198,6 +206,8 @@
         totalRecords: 0,
         query: "",
         loading: false,
+        contextType: "admin",
+        contextScope: "global",
       };
 
       // Utility functions
@@ -217,6 +227,19 @@
       function formatDate(dateStr) {
         if (!dateStr) return "Never";
         return new Date(dateStr).toLocaleString();
+      }
+
+      function updateContextPill() {
+        const pill = document.getElementById("context-pill");
+        if (!pill) return;
+        const typeLabel = state.contextType === "client" ? "Client" : "Admin";
+        const scopeLabel =
+          state.contextScope === "self"
+            ? "Self"
+            : state.contextScope === "global"
+            ? "Global"
+            : state.contextScope ?? "";
+        pill.textContent = `${typeLabel} scope: ${scopeLabel}`;
       }
 
       // API calls
@@ -242,6 +265,10 @@
         const p = data.data.pagination || {};
         state.totalPages = p.total_pages || 1;
         state.totalRecords = p.total_records || 0;
+        const ctx = data.data.context || {};
+        state.contextType = ctx.type || "admin";
+        state.contextScope = ctx.scope || "global";
+        updateContextPill();
       }
 
       async function createApiKey(payload) {
@@ -410,6 +437,7 @@
       // Load data
       async function loadData() {
         state.loading = true;
+        updateContextPill();
         renderTable();
 
         try {

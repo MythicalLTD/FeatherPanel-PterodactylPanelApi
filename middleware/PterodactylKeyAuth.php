@@ -23,28 +23,8 @@ class PterodactylKeyAuth
 {
 	public function handle(Request $request, callable $next): Response
 	{
-
-		// Check for Authorization header (Bearer token for plugin API keys)
 		$authHeader = $request->headers->get('Authorization');
-		if ($authHeader && preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
-			$providedKey = $matches[1];
-			$record = PterodactylApiChat::getByKey($providedKey);
-			if ($record == null) {
-				return ApiResponse::sendManualResponse([
-					'errors' => [
-						'code' => 'AuthenticationException',
-						'status' => 401,
-						'detail' => 'Unauthenticated.'
-					]
-				], 401);
-			}
-			// Optionally update last_used
-			PterodactylApiChat::update((int) $record['id'], ['last_used' => date('Y-m-d H:i:s')]);
-
-			// Attach info (no user binding in this addon context)
-			$request->attributes->set('pterodactyl_key', $record);
-			$request->attributes->set('auth_type', 'api_key');
-		} else {
+		if (!$authHeader || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
 			return ApiResponse::sendManualResponse([
 				'errors' => [
 					'code' => 'AuthenticationException',
@@ -54,6 +34,44 @@ class PterodactylKeyAuth
 			], 401);
 		}
 
+		$providedKey = $matches[1];
+		$record = PterodactylApiChat::getByKey($providedKey);
+		if ($record === null || ($record['deleted'] ?? 'false') === 'true') {
+			return ApiResponse::sendManualResponse([
+				'errors' => [
+					'code' => 'AuthenticationException',
+					'status' => 401,
+					'detail' => 'Unauthenticated.'
+				]
+			], 401);
+		}
+
+		$requiredType = $request->attributes->get('required_pterodactyl_key_type');
+		if ($requiredType === null) {
+			$path = $request->getPathInfo();
+			if (preg_match('#^/api/application(?:/|$)#', $path) === 1) {
+				$requiredType = 'admin';
+			} elseif (preg_match('#^/api/client(?:/|$)#', $path) === 1) {
+				$requiredType = 'client';
+			}
+		}
+		if ($requiredType !== null && $record['type'] !== $requiredType) {
+			return ApiResponse::sendManualResponse([
+				'errors' => [
+					'code' => 'AuthorizationException',
+					'status' => 403,
+					'detail' => 'Forbidden.'
+				]
+			], 403);
+		}
+
+		PterodactylApiChat::update((int) $record['id'], ['last_used' => date('Y-m-d H:i:s')]);
+
+		$request->attributes->set('pterodactyl_key', $record);
+		$request->attributes->set('pterodactyl_api_key_type', $record['type']);
+		$request->attributes->set('api_client', $record);
+		$request->attributes->set('api_key_type', $record['type']);
+		$request->attributes->set('auth_type', 'api_key');
 
 		return $next($request);
 	}

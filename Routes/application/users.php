@@ -32,6 +32,7 @@ return function (RouteCollection $routes): void {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		[], // requirements
 		[], // options
@@ -50,6 +51,7 @@ return function (RouteCollection $routes): void {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['user' => '\d+'], // requirements - user must be a digit
 		[], // options
@@ -68,6 +70,7 @@ return function (RouteCollection $routes): void {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		[], // requirements
 		[], // options
@@ -86,6 +89,7 @@ return function (RouteCollection $routes): void {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		[], // requirements
 		[], // options
@@ -104,6 +108,7 @@ return function (RouteCollection $routes): void {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['user' => '\d+'], // requirements - user must be a digit
 		[], // options
@@ -122,6 +127,7 @@ return function (RouteCollection $routes): void {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['user' => '\d+'], // requirements - user must be a digit
 		[], // options

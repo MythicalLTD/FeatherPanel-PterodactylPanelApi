@@ -9,15 +9,85 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ApiKeysController
 {
+	/**
+	 * Resolve the context (admin/global or client/self) for the incoming request.
+	 *
+	 * @throws \RuntimeException when authentication context is missing for client scope
+	 */
+	private function resolveContext(Request $request): array
+	{
+		$type = $request->attributes->get('api_key_type');
+		if ($type === null) {
+			$type = $request->attributes->get('pterodactyl_api_key_type', 'admin');
+		}
+		if (!in_array($type, ['admin', 'client'], true)) {
+			$type = 'admin';
+		}
+
+		$scope = $request->attributes->get('pterodactyl_api_key_scope');
+		if ($scope === null) {
+			$scope = $type === 'client' ? 'self' : 'global';
+		}
+
+		$user = $request->attributes->get('user');
+		$ownerId = null;
+
+		if ($scope === 'self') {
+			if (!is_array($user) || !isset($user['id'])) {
+				throw new \RuntimeException('AUTH_REQUIRED');
+			}
+			$ownerId = (int) $user['id'];
+		}
+
+		return [
+			'type' => $type,
+			'scope' => $scope,
+			'owner_id' => $ownerId,
+			'user' => is_array($user) ? $user : null,
+		];
+	}
+
+	private function forbidResponse(): Response
+	{
+		return ApiResponse::error('API key inaccessible in this context', 'API_KEY_FORBIDDEN', 403);
+	}
+
+	private function ensureAccessible(?array $key, array $context): ?Response
+	{
+		if ($key === null) {
+			return ApiResponse::error('API key not found', 'API_KEY_NOT_FOUND', 404);
+		}
+
+		if (($key['deleted'] ?? 'false') === 'true') {
+			return ApiResponse::error('API key not found', 'API_KEY_NOT_FOUND', 404);
+		}
+
+		if (($key['type'] ?? null) !== $context['type']) {
+			return $this->forbidResponse();
+		}
+
+		if ($context['owner_id'] !== null && (int) $key['created_by'] !== $context['owner_id']) {
+			return $this->forbidResponse();
+		}
+
+		return null;
+	}
+
 	public function index(Request $request): Response
 	{
+		try {
+			$context = $this->resolveContext($request);
+		} catch (\RuntimeException $e) {
+			return ApiResponse::error('Authentication required', 'AUTH_REQUIRED', 401);
+		}
+
 		$page = (int) $request->query->get('page', 1);
 		$limit = (int) $request->query->get('limit', 10);
 		$search = $request->query->get('search', '');
 
 		$offset = ($page - 1) * $limit;
-		$keys = PterodactylApiChat::getAll($search, $limit, $offset);
-		$total = PterodactylApiChat::getCount($search);
+		$keys = PterodactylApiChat::getAll($search, $limit, $offset, $context['type'], $context['owner_id']);
+		$total = PterodactylApiChat::getCount($search, $context['type'], $context['owner_id']);
 
 		$totalPages = (int) ceil($total / max(1, $limit));
 		$from = $total === 0 ? 0 : (($page - 1) * $limit + 1);
@@ -39,14 +109,25 @@ class ApiKeysController
 				'query' => $search,
 				'has_results' => count($keys) > 0,
 			],
+			'context' => [
+				'type' => $context['type'],
+				'scope' => $context['scope'],
+			],
 		], 'API keys fetched successfully', 200);
 	}
 
 	public function show(Request $request, int $id): Response
 	{
+		try {
+			$context = $this->resolveContext($request);
+		} catch (\RuntimeException $e) {
+			return ApiResponse::error('Authentication required', 'AUTH_REQUIRED', 401);
+		}
+
 		$key = PterodactylApiChat::getById($id);
-		if (!$key) {
-			return ApiResponse::error('API key not found', 'API_KEY_NOT_FOUND', 404);
+		$response = $this->ensureAccessible($key, $context);
+		if ($response !== null) {
+			return $response;
 		}
 
 		return ApiResponse::success(['key' => $key], 'API key fetched successfully', 200);
@@ -54,6 +135,12 @@ class ApiKeysController
 
 	public function create(Request $request): Response
 	{
+		try {
+			$context = $this->resolveContext($request);
+		} catch (\RuntimeException $e) {
+			return ApiResponse::error('Authentication required', 'AUTH_REQUIRED', 401);
+		}
+
 		$data = json_decode($request->getContent(), true);
 		if (json_last_error() !== JSON_ERROR_NONE) {
 			return ApiResponse::error('Invalid JSON in request body', 'INVALID_JSON', 400);
@@ -83,15 +170,27 @@ class ApiKeysController
 			$data['last_used'] = date('Y-m-d H:i:s', $ts);
 		}
 
-		$user = $request->get('user');
-		$createdBy = is_array($user) && isset($user['id']) ? (int) $user['id'] : ($data['created_by'] ?? null);
+		$actor = $context['user'];
+		$actorId = is_array($actor) && isset($actor['id']) ? (int) $actor['id'] : null;
+
+		if ($context['owner_id'] !== null) {
+			$createdBy = $context['owner_id'];
+		} else {
+			$createdBy = isset($data['created_by']) ? (int) $data['created_by'] : $actorId;
+		}
+
 		if ($createdBy === null) {
 			return ApiResponse::error('created_by is required', 'MISSING_REQUIRED_FIELDS', 400);
+		}
+		$createdBy = (int) $createdBy;
+		if ($createdBy <= 0) {
+			return ApiResponse::error('created_by must be a positive integer', 'INVALID_DATA_TYPE', 400);
 		}
 
 		$insertData = [
 			'name' => $data['name'],
 			'key' => $data['key'],
+			'type' => $context['type'],
 			'last_used' => $data['last_used'] ?? null,
 			'created_by' => $createdBy,
 		];
@@ -107,10 +206,18 @@ class ApiKeysController
 
 	public function update(Request $request, int $id): Response
 	{
-		$existing = PterodactylApiChat::getById($id);
-		if (!$existing) {
-			return ApiResponse::error('API key not found', 'API_KEY_NOT_FOUND', 404);
+		try {
+			$context = $this->resolveContext($request);
+		} catch (\RuntimeException $e) {
+			return ApiResponse::error('Authentication required', 'AUTH_REQUIRED', 401);
 		}
+
+		$existing = PterodactylApiChat::getById($id);
+		$response = $this->ensureAccessible($existing, $context);
+		if ($response !== null) {
+			return $response;
+		}
+
 		$data = json_decode($request->getContent(), true);
 		if (json_last_error() !== JSON_ERROR_NONE) {
 			return ApiResponse::error('Invalid JSON in request body', 'INVALID_JSON', 400);
@@ -152,9 +259,16 @@ class ApiKeysController
 
 	public function delete(Request $request, int $id): Response
 	{
+		try {
+			$context = $this->resolveContext($request);
+		} catch (\RuntimeException $e) {
+			return ApiResponse::error('Authentication required', 'AUTH_REQUIRED', 401);
+		}
+
 		$existing = PterodactylApiChat::getById($id);
-		if (!$existing) {
-			return ApiResponse::error('API key not found', 'API_KEY_NOT_FOUND', 404);
+		$response = $this->ensureAccessible($existing, $context);
+		if ($response !== null) {
+			return $response;
 		}
 		$ok = PterodactylApiChat::delete($id);
 		if (!$ok) {

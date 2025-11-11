@@ -16,6 +16,7 @@ return function (RouteCollection $routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['serverId' => '[a-zA-Z0-9\-]+'], // requirements - server ID or UUID
 		[], // options
@@ -34,6 +35,7 @@ return function (RouteCollection $routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['serverId' => '[a-zA-Z0-9\-]+', 'databaseId' => '\d+'], // requirements
 		[], // options
@@ -52,6 +54,7 @@ return function (RouteCollection $routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['serverId' => '[a-zA-Z0-9\-]+'], // requirements
 		[], // options
@@ -70,6 +73,7 @@ return function (RouteCollection $routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['serverId' => '[a-zA-Z0-9\-]+', 'databaseId' => '\d+'], // requirements
 		[], // options
@@ -88,6 +92,7 @@ return function (RouteCollection $routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['serverId' => '[a-zA-Z0-9\-]+', 'databaseId' => '\d+'], // requirements
 		[], // options
@@ -106,6 +111,7 @@ return function (RouteCollection $routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['serverId' => '[a-zA-Z0-9\-]+', 'databaseId' => '\d+'], // requirements
 		[], // options

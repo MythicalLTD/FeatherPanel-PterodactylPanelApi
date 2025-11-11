@@ -1,16 +1,26 @@
 {
-	"dashboard": {},
-	"admin": {
-		"/admin/pterodactylpanelapi/api-keys": {
-			"name": "Pterodactyl API",
-			"icon": "🦎",
-			"showBadge": false,
-			"redirect": "/admin/pterodactylpanelapi/api-keys",
-			"component": "api-keys.html",
-			"description": "Manage and generate API keys for the PterodactylPanelApi plugin",
-			"category": "admin",
-			"permission": "admin.plugin.api_keys"
-		}
-	},
-	"server": {}
+  "client": {
+    "/pterodactylpanelapi/api-keys": {
+      "name": "Pterodactyl API Keys",
+      "icon": "🦎",
+      "showBadge": false,
+      "redirect": "/pterodactylpanelapi/api-keys",
+      "component": "api-keys-client.html",
+      "description": "Manage and generate API keys for the PterodactylPanelApi plugin",
+      "category": "client"
+    }
+  },
+  "admin": {
+    "/pterodactylpanelapi/api-keys": {
+      "name": "Pterodactyl API Keys",
+      "icon": "🦎",
+      "showBadge": false,
+      "redirect": "/pterodactylpanelapi/api-keys",
+      "component": "api-keys-admin.html",
+      "description": "Manage and generate API keys for the PterodactylPanelApi plugin",
+      "category": "admin",
+      "permission": "admin.plugin.api_keys"
+    }
+  },
+  "server": {}
 }

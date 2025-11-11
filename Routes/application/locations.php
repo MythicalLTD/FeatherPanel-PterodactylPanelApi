@@ -27,6 +27,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		[], // requirements
 		[], // options
@@ -45,6 +46,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['locationId' => '\d+'], // requirements
 		[], // options
@@ -63,6 +65,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		[], // requirements
 		[], // options
@@ -81,6 +84,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['locationId' => '\d+'], // requirements
 		[], // options
@@ -99,6 +103,7 @@ return function ($routes) {
 			'_middleware' => [
 				PterodactylKeyAuth::class,
 			],
+			'required_pterodactyl_key_type' => 'admin',
 		],
 		['locationId' => '\d+'], // requirements
 		[], // options
